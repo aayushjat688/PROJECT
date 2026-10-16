@@ -8,9 +8,11 @@ let navigate = useNavigate();
 let [userName , setUserName] = useState("");
 let [email , setEmail] = useState("");
 let [password , setPassword] = useState("");
-
+let [loading,setLoading]=useState(false);
+  let[err,setErr] = useState("");
 const handleSignUp = async (e)=>{
   e.preventDefault();
+  setLoading(true);
   try{
 
        let result = await axios.post(`${serverUrl}/api/auth/signup`,{
@@ -20,11 +22,19 @@ const handleSignUp = async (e)=>{
        setUserName("")
        setEmail("")
       setPassword("")
+      setLoading(false);
   } 
   catch (err) {
+    
   console.log("Error:", err);
   console.log("Message:", err.message);
   console.log("Response:", err.response);
+  setErr(err.response.data.message)
+  setLoading(false);
+  if(err.response.status==500){
+      setErr('Check Internet connection')
+      
+    }
 }
 
 }
@@ -48,8 +58,9 @@ const handleSignUp = async (e)=>{
         <input type="password" onChange={(e)=>setPassword(e.target.value)} value={password} placeholder="password" className="w-[90%] h-[60px] cursor-pointer
         outline-none border-2 hover:shadow-inner border-[#20c7ff] px-[20px] py-[10px] bg-white
         rounded-lg hadow-gray-400 shadow-lg text-gray-700 text-[19px]"/>
+        {err && <p className="text-center text-red-500">{err}</p>}
         <button className="px-[20px] w-[200px] cursor-pointer mt-4 py-[10px] bg-[#20c7ff] rounded-2xl shadow-gray-300 shadow-lg
-        hover:shadow-inner">sign up</button>
+        hover:shadow-inner" disabled={loading}>{loading ? "Loading...":"Sign up"}</button>
 
         <p onClick={()=>navigate('/login')} className="cursor-pointer">Already have an Account ? <span className="text-[#20c7ff] text-[semibold]">Login</span></p>
       </form>
