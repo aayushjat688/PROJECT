@@ -8,6 +8,7 @@ import { serverUrl } from '../main';
 import { setUserData } from '../redux/userSlice';
 import axios from 'axios';
 
+
 function Profile() {
   let Navigate = useNavigate();
    let {userData} = useSelector(state=>state.user);
@@ -66,6 +67,7 @@ setSaving(false)
         rounded-lg hadow-gray-400 shadow-lg text-gray-400 text-[19px]"/>
        <button  className="px-[20px] w-[200px] cursor-pointer mt-4 py-[10px] bg-[#20c7ff] rounded-2xl shadow-gray-300 shadow-lg
         hover:shadow-inner" disabled={saving}>{saving?"saving...":"Save profile"}</button>
+       
       </form>
     </div>
   )

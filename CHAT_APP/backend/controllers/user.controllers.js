@@ -23,14 +23,14 @@ export const editProfile = async (req,res)=>{
       }
   
       
-      let image;
+      let image ;
       if(req.file){
         image = await uploadOnCloudinary(req.file.path);
       }
        user = await User.findByIdAndUpdate(req.userId,{
         name,
         image
-      })
+      },{new:true})
       if(!user) return res.status(400).json({message:"user not found"})
       return res.status(200).json(user);
   } catch (err) {
