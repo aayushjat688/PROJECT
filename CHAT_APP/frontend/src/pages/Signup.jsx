@@ -25,6 +25,7 @@ const handleSignUp = async (e)=>{
        },{withCredentials:true})
       //  console.log(result);
       dispatch(setUserData(result.data))
+      navigate('/profile')
        setUserName("")
        setEmail("")
       setPassword("")

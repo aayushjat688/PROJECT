@@ -22,6 +22,7 @@ setLoading(true);
        setLoading(false);
        
       //  console.log(result.data);
+      navigate('/')
       dispatch(setUserData(result.data))
        setEmail("")
       setPassword("")
