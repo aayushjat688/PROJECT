@@ -40,7 +40,7 @@ export const editProfile = async (req,res)=>{
 
 export const getOtherUsers= async (req,res)=>{
   try {
-    console.log(req.userId)
+    // console.log(req.userId)
     let users = await User.find({
       _id:{$ne:req.userId}
     }).select("-password");
