@@ -92,9 +92,10 @@ const handleSendMessage=async(e)=>{
                 </div>
                }
             {   messages.map((mess) => (
+              // console.log(mess.createdAt),
   mess.sender === userData._id
-    ? <SenderMessage key={mess._id} image={mess.image} message={mess.message} />
-    : <RecieverMessage key={mess._id} image={mess.image} message={mess.message} />
+    ? <SenderMessage key={mess._id} time={mess.createdAt} image={mess.image} message={mess.message} />
+    : <RecieverMessage key={mess._id} time={mess.createdAt} image={mess.image} message={mess.message} />
 ))
 }
                 
