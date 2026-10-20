@@ -1,18 +1,21 @@
 import mongoose from 'mongoose'
-const messageSchema = new mongoose.scema({
+const messageSchema = new mongoose.Schema({
   sender:{
     type:mongoose.Schema.Types.ObjectId,
      ref:"User",
-     required:true 
-
+     require:true 
   },
   receiver:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
-    required:true,
+    require:true,
   },
   message:{
-    required:true
+    type:String,
+    require:true
+  },
+  image:{
+    type:String
   }
 },{timestamps:true})
 

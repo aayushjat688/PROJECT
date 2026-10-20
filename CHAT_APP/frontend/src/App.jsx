@@ -11,7 +11,9 @@ import Profile from './pages/Profile'
 function App() {
   useGetCurrentUser();
   useGetOtherUsers();
+
   let {userData} = useSelector(state=>state.user);
+
   return (
     <Routes>
       <Route path='/login' element={!userData?<Login />:<Navigate to="/"/>}/>

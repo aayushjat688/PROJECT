@@ -5,10 +5,13 @@ const conversationSchema = new mongoose.Schema({
     type:mongoose.Schema.Types.ObjectId,
     ref:"User"
   }],
-  message:[
-    {type:String}
-  ]
-},{timeStamps:true})
+  message:[{type:mongoose.Schema.Types.ObjectId,
+    ref:"Message",
+    default:""}],
 
-const conversation = mongoose.model("conversation",conversationSchema);
-export default conversation
+  image:{type:String,default:""}
+  
+},{timestamps:true})
+
+const Conversation = mongoose.model("conversation",conversationSchema);
+export default Conversation
