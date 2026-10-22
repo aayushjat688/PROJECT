@@ -3,15 +3,15 @@ import { RxCross2 } from "react-icons/rx";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import dp from '../assets/dp.jpg'
 import { IoIosSearch } from "react-icons/io";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { serverUrl } from '../main';
 import axios from 'axios';
-import { setOtherUsers, setSelectedUser, setUserData } from '../redux/userSlice';
+import { setOtherUsers, setSearchData, setSelectedUser, setUserData } from '../redux/userSlice';
 import { useNavigate } from 'react-router-dom';
  
 function Sidebar() {
- 
-  let { userData, otherUsers, selectedUser, onlineUsers } = useSelector(state => state.user)
+ let[input , setInput] = useState('')
+  let { userData, otherUsers, selectedUser, onlineUsers,searchData } = useSelector(state => state.user)
   let [search, setSearch] = useState(false)
   let dispatch = useDispatch();
   let Navigate = useNavigate();
@@ -26,6 +26,27 @@ function Sidebar() {
       console.log(err);
     }
   }
+
+  const handleSearch = async()=>{
+    try{
+       let result = await axios.get(`${serverUrl}/api/user/search?query=${input}`,
+        {withCredentials:true}
+       )
+       dispatch(setSearchData(result.data))
+      //  console.log(result)
+       
+    } catch (err) {
+      console.log(err.response);
+    }
+   
+  }
+  useEffect(()=>{
+    if(input){
+      handleSearch()
+    }
+    
+  },[input])
+
  
   return (
     <div
@@ -67,21 +88,55 @@ function Sidebar() {
             >
               <IoIosSearch className="w-[24px] h-[24px] text-gray-500 shrink-0" />
               <input
+              onChange={(e)=>setInput(e.target.value)}
+
                 type="text"
                 autoFocus
                 placeholder="Search users..."
                 className="flex-1 min-w-0 h-full bg-transparent outline-none border-0 text-gray-700 placeholder-gray-400"
               />
-              <button type="button" onClick={() => setSearch(false)} aria-label="Close search">
+              <button type="button" onClick={() =>{
+                 setSearch(false),
+                 dispatch(setSearchData(null))
+                } 
+              } aria-label="Close search">
                 <RxCross2 className="w-[22px] h-[22px] text-gray-500 hover:text-gray-800 cursor-pointer" />
               </button>
+             
             </form>
           )}
         </div>
       </div>
  
       <div className="flex-1 overflow-y-auto px-3 pt-2 pb-[90px] flex flex-col gap-3 scrollbar-none">
-        {otherUsers?.map((user) => (
+         {search && searchData?.map((user) => (
+          <div
+            key={user._id}
+            onClick={() =>{
+              setSearch(false),
+              dispatch(setSearchData(null)),
+              dispatch(setSelectedUser(user))}
+              
+            } 
+            className="w-full bg-white hover:bg-sky-50 active:scale-[0.99] transition cursor-pointer rounded-full flex items-center gap-3 p-1.5 pr-4 shadow-md shadow-gray-400/50"
+          >
+            <div className="relative shrink-0">
+              <div className="h-[50px] w-[50px] bg-gray-300 rounded-full overflow-hidden shadow-md shadow-gray-500/50">
+                <img src={user.image || dp} alt="" className="w-full h-full object-cover" />
+              </div>
+              {onlineUsers?.includes(user._id) && (
+                <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+              )}
+            </div>
+ 
+            <h1 className="flex-1 min-w-0 text-gray-700 font-semibold text-[18px] truncate">
+              {user.name || user.userName}
+            </h1>
+          </div>
+        ))}
+
+        
+        {!search &&otherUsers?.map((user) => (
           <div
             key={user._id}
             onClick={() => dispatch(setSelectedUser(user))}
@@ -111,9 +166,9 @@ function Sidebar() {
       >
         <RiLogoutBoxLine className="text-2xl text-white" />
       </button>
+      
     </div>
   )
 }
  
 export default Sidebar
- 

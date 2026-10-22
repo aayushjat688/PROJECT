@@ -5,7 +5,9 @@ export const getCurrentUser = async(req,res)=>{
   try{
     let userId = req.userId;
     let user = await User.findById(userId).select("-password");
-    if(!user) return "user not found";
+    if(!user){
+  return res.status(404).json({ message: "User not found" });
+}
     return res.status(200).json(user)
   } catch (err) {
     return res.status(500).json({message:`current user error ${err}`});
@@ -48,5 +50,27 @@ export const getOtherUsers= async (req,res)=>{
   } catch (err){
 
     return res.status(500).json({message:"get other users error"})
+  }
+}
+
+export const search = async (req,res)=>{
+  try{
+    let q = req.query.query;
+    
+    if(!q){
+      return res.status(400).json({message:"query Required"})
+    }
+    let users = await User.find({
+      _id:{$ne: req.userId},
+      $or:[
+        {name:{$regex:q,$options:"i"}},
+        {userName:{$regex:q,$options:"i"}}
+      ]
+    })
+
+    return res.status(200).json(users)
+
+  } catch (err){
+     return res.status(500).json({message:`cannot get users error ${err.message}`})
   }
 }

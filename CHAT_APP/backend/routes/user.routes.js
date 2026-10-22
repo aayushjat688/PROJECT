@@ -1,7 +1,7 @@
 import express from 'express';
 
 import isAuth from '../middlewares/isAuth.js';
-import { editProfile, getCurrentUser, getOtherUsers } from '../controllers/user.controllers.js';
+import { editProfile, getCurrentUser, getOtherUsers, search } from '../controllers/user.controllers.js';
 import { upload } from '../middlewares/multer.js';
 
 
@@ -13,5 +13,7 @@ userRouter.get('/current',isAuth,getCurrentUser)
 userRouter.put('/profile',isAuth,upload.single("image"),editProfile)
 
 userRouter.get('/others',isAuth,getOtherUsers)
+
+userRouter.get('/search',isAuth,search)
 
 export default userRouter;
