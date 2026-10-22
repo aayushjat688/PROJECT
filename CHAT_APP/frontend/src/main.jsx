@@ -5,7 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from './redux/store.js'
-export const serverUrl = 'http://localhost:5000'
+export const serverUrl = 'https://chat-app-backend-lvqn.onrender.com'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
