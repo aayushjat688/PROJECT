@@ -26,8 +26,8 @@ const token = await genToken(user._id);
 res.cookie("token",token,{
 httpOnly:true,
 maxAge:7*24*60*60*1000,
-sameSite:"Lax",
-secure:false
+sameSite:"None",
+secure:true
 })
 
 return res.status(201).json(user);
@@ -55,8 +55,8 @@ if(!isMatch) return res.json(400).json({message:"Incorrect Password"})
   res.cookie('token',token,{
     httpOnly:true,
     maxAge:7*24*60*60*1000,
-    sameSite:"Lax",
-    secure:false
+    sameSite:"None",
+    secure:true
   })
 
   return res.status(200).json(user);
