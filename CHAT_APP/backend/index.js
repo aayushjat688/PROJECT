@@ -6,11 +6,13 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors'
 import userRouter from './routes/user.routes.js';
 import messageRouter from './routes/message.routes.js';
+import {app,server} from './socket/socket.js'
+
 dotenv.config();
 
 const port = process.env.PORT || 5000;
 
-const app = express();
+
 
 app.use(cookieParser());
 app.use(
@@ -23,7 +25,7 @@ app.use(express.json());
 app.use('/api/auth',authRouter)
 app.use('/api/user',userRouter);
 app.use('/api/message',messageRouter)
-app.listen(port,()=>{
+server.listen(port,()=>{
   connectDb();
   console.log("server started at port: ",port);
 })

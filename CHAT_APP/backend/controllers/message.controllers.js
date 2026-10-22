@@ -1,60 +1,67 @@
-
-import uploadOnCloudinary from './../config/cloudinary.js';
-import Conversation from './../models/conversation.model.js';
-import Message from './../models/message.model.js';
-export const sendMessage = async(req,res)=>{
-  try{
-    let sender = req.userId;
-    let receiver = req.params.receiver;
-  //  console.log(reciever);
-    let {message} = req.body;
+import { io, getReceiverSocketId } from "../socket/socket.js";
+import uploadOnCloudinary from "./../config/cloudinary.js";
+import Conversation from "./../models/conversation.model.js";
+import Message from "./../models/message.model.js";
+ 
+export const sendMessage = async (req, res) => {
+  try {
+    const sender = req.userId;
+    const receiver = req.params.receiver;
+    const { message } = req.body;
+ 
     let image;
-    if(req.file){
-      image=await uploadOnCloudinary(req.file.path)
+    if (req.file) {
+      image = await uploadOnCloudinary(req.file.path);
     }
-
-    let conversation = await Conversation.findOne({
-      participants:{$all:[sender,receiver]}
-    })
-
-    let newMessage = await Message.create({
-  sender,
-  receiver,
-  message,
-  image
-});
-
-    if(!conversation){
-      conversation=await Conversation.create({
-        participants:[sender,receiver],
-        message:[newMessage._id]
-      })
-    }else {
-        conversation.message.push(newMessage._id)
-        await conversation.save();
+ 
+    // Don't save empty messages
+    if (!message?.trim() && !image) {
+      return res.status(400).json({ message: "Message or image is required" });
     }
-    return res.status(201).json(newMessage)
+ 
+    const newMessage = await Message.create({
+      sender,
+      receiver,
+      message,
+      image,
+    });
+ 
+    // Find the conversation and add the message in one step (creates it if missing)
+    await Conversation.findOneAndUpdate(
+      { participants: { $all: [sender, receiver] } },
+      {
+        $push: { message: newMessage._id },
+        $setOnInsert: { participants: [sender, receiver] },
+      },
+      { upsert: true, new: true }
+    );
+ 
+    // Realtime: send ONLY the new message, ONLY to the receiver
+    const receiverSocketId = getReceiverSocketId(receiver);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+ 
+    return res.status(201).json(newMessage);
   } catch (err) {
-    return res.status(500).json({message:`send message error ${err}`})
+    return res.status(500).json({ message: `send message error ${err}` });
   }
-}
-
-export const getMessage = async (req,res)=>{
-  try{
-    let sender = req.userId
-    let receiver = req.params.receiver;
-    console.log(receiver)
-    let conversation = await Conversation.findOne({
-      participants:{$all:[sender,receiver]}
-    }).populate("message")
-    if (!conversation) {
-  return res.status(200).json([]);
-}
-
-    return res.status(200).json(conversation?.message)
-  } catch (error){
-    return res.status(500).json({
-        message:`conversataion not found ${error}`
-      })
+};
+ 
+export const getMessage = async (req, res) => {
+  try {
+    const sender = req.userId;
+    const receiver = req.params.receiver;
+ 
+    const conversation = await Conversation.findOne({
+      participants: { $all: [sender, receiver] },
+    }).populate("message");
+ 
+    // Always respond with the message list (empty if no conversation yet)
+    return res.status(200).json(conversation?.message || []);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: `get message error ${error}` });
   }
-}
+};
