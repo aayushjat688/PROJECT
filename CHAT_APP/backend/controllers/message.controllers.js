@@ -26,15 +26,20 @@ export const sendMessage = async (req, res) => {
       image,
     });
  
-    // Find the conversation and add the message in one step (creates it if missing)
-    await Conversation.findOneAndUpdate(
-      { participants: { $all: [sender, receiver] } },
-      {
-        $push: { message: newMessage._id },
-        $setOnInsert: { participants: [sender, receiver] },
-      },
-      { upsert: true, new: true }
-    );
+
+    let conversation = await Conversation.findOne({
+  participants: { $all: [sender, receiver] },
+});
+
+if (!conversation) {
+  conversation = await Conversation.create({
+    participants: [sender, receiver],
+    message: [newMessage._id],
+  });
+} else {
+  conversation.message.push(newMessage._id);
+  await conversation.save();
+}
  
     // Realtime: send ONLY the new message, ONLY to the receiver
     const receiverSocketId = getReceiverSocketId(receiver);
